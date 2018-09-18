@@ -26,7 +26,7 @@
   <![endif]-->
 <h1>Mon super blog</h1>
 
-<p class="ml-3">Derniers billets du blog</p>
+<p class="ml-3"><a href="index.php">Retour à la liste des billets</a></p>
 
 <?php
 try
@@ -43,36 +43,40 @@ catch(Exception $e)
 // Si tout va bien, on peut continuer
 
 // On récupère tout le contenu de la table billets
-$reponse = $bdd->query('SELECT * FROM billets ORDER BY id DESC LIMIT 0, 5');
+$req = $bdd->prepare('SELECT * FROM billets WHERE id= ?');
+$req->execute(array($_GET['billets']));
 
-// On affiche chaque entrée une à une
-foreach ($reponse as $key => $value)
-{
+foreach ($req as $key => $value) {
+
 ?>
-  <div class="news">
-    <h3><?php echo htmlspecialchars($value['titre']); ?>
-      <em><?php echo 'Le ' . htmlspecialchars($value['date_creation']); ?></em>
-    </h3>
 
-    <p><?php echo htmlspecialchars($value['contenu']); ?></br>
-      <a href="commentaires.php?billets=<?php echo htmlspecialchars($value['id']); ?>"><em>Commentaires</em></a>
-    </p>
+<div class="news">
+  <h3><?php echo htmlspecialchars($value['titre']); ?>
+    <em><?php echo 'Le ' . htmlspecialchars($value['date_creation']); ?></em>
+  </h3>
 
-
-  </div>
-
+  <p><?php echo htmlspecialchars($value['contenu']); ?></p>
+</div>
 
 <?php
-
 }
-
-$reponse->closeCursor(); // Termine le traitement de la requête
-
 ?>
 
+<h2 class="text-left ml-3 mt-4 mb-4">Commentaires</h2>
 
+<!-- On récupère le contenu de la table commentaires -->
+<?php
+$req = $bdd->prepare('SELECT * FROM commentaires WHERE id_billet= ?');
+$req->execute(array($_GET['billets']));
 
+foreach ($req as $key => $value) {
+?>
+<p class="ml-3"><strong><?php echo htmlspecialchars($value['auteur'])?></strong><?php echo ' le ' . htmlspecialchars($value['date_commentaire'])?></p>
+<p class="ml-3"><?php echo htmlspecialchars($value['commentaire'])?></p>
 
+<?php
+}
+?>
 
   <script src="js/vendor/modernizr-3.6.0.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
